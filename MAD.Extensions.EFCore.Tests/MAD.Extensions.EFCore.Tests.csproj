@@ -19,4 +19,10 @@
 		<ProjectReference Include="..\MAD.Extensions.EFCore\MAD.Extensions.EFCore.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="testsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>
