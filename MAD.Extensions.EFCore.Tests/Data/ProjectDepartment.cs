@@ -8,5 +8,7 @@ namespace MAD.Extensions.EFCore.Tests.Data
     {
         public int Id { get; set; }
         public string Name { get; set; }
+
+        public IEnumerable<DepartmentEmployee> Employees { get; set; }
     }
 }

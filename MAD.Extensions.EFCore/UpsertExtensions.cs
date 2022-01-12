@@ -15,13 +15,36 @@ namespace MAD.Extensions.EFCore
         {
             dbContext.ChangeTracker.TrackGraph(entity, g =>
             {
-                var entity = g.Entry.Entity;
+                var entryEntity = g.Entry.Entity;
+                var sourceEntryEntity = g.SourceEntry?.Entity;
                 var entityType = g.Entry.OriginalValues.EntityType;
 
                 if (entityType is null)
                     return;
 
-                transformations?.Invoke(entity);
+                transformations?.Invoke(entryEntity);
+
+                if (g.InboundNavigation is null == false && g.InboundNavigation.IsCollection())
+                {
+                    var principalKeyProperties = g.InboundNavigation.ForeignKey.PrincipalKey.Properties;
+                    var dependantKeyProperties = g.InboundNavigation.ForeignKey.Properties;
+
+                    var pkValues = new List<object>();
+
+                    foreach (var pk in principalKeyProperties)
+                    {
+                        var value = dbContext.Entry(sourceEntryEntity).Property(pk.Name).CurrentValue;
+                        pkValues.Add(value);
+                    }
+                    
+                    for (int i = 0; i < pkValues.Count; i++)
+                    {
+                        var dk = dependantKeyProperties[i];
+                        var pkVal = pkValues[i];
+
+                        dbContext.Entry(entryEntity).Property(dk.Name).CurrentValue = pkVal;
+                    }
+                }               
 
                 var primaryKey = entityType.FindPrimaryKey();
                 var keys = primaryKey.Properties.ToDictionary(
@@ -36,7 +59,7 @@ namespace MAD.Extensions.EFCore
                         }
                         else
                         {
-                            result = x.PropertyInfo.GetValue(entity);
+                            result = x.PropertyInfo.GetValue(entryEntity);
                         }
 
                         if (result is DateTime dte)

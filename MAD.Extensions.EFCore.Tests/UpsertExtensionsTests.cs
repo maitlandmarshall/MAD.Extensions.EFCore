@@ -34,12 +34,38 @@ namespace MAD.Extensions.EFCore.Tests
                    new ProjectDepartment
                    {
                        Id = 1,
-                       Name = "Mech"
+                       Name = "Mech",
+                       Employees = new List<DepartmentEmployee>
+                       {
+                           new DepartmentEmployee
+                           {
+                               Id = 1,
+                               Name = "Kramer"
+                           },
+                           new DepartmentEmployee
+                           {
+                               Id = 2,
+                               Name = "Slaymer"
+                           }
+                       }
                    },
                    new ProjectDepartment
                    {
                        Id = 2,
-                       Name = "Dech"
+                       Name = "Dech",
+                       Employees = new List<DepartmentEmployee>
+                       {
+                           new DepartmentEmployee
+                           {
+                               Id = 3,
+                               Name = "Vramer"
+                           },
+                           new DepartmentEmployee
+                           {
+                               Id = 4,
+                               Name = "Claymer"
+                           }
+                       }
                    }
                 }
             };
@@ -57,15 +83,16 @@ namespace MAD.Extensions.EFCore.Tests
 
             using (var db = TestDbContextFactory.Create())
             {
-                db.Upsert(project, entity =>
-                {
-                    switch (entity)
-                    {
-                        case ProjectDepartment pd:
-                            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
-                            break;
-                    }
-                });
+                db.Upsert(project);
+                //db.Upsert(project, entity =>
+                //{
+                //    switch (entity)
+                //    {
+                //        case ProjectDepartment pd:
+                //            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
+                //            break;
+                //    }
+                //});
 
                 db.SaveChanges();
             }
@@ -126,19 +153,86 @@ namespace MAD.Extensions.EFCore.Tests
 
             using (var db = TestDbContextFactory.Create())
             {
-                db.Upsert(project, entity =>
-                {
-                    switch (entity)
-                    {
-                        case ProjectDepartment pd:
-                            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
-                            break;
-                        case ProjectRegion region:
+                db.Upsert(project);
+                //db.Upsert(project, entity =>
+                //{
+                //    switch (entity)
+                //    {
+                //        case ProjectDepartment pd:
+                //            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
+                //            break;
+                //        case ProjectRegion region:
 
-                            break;
+                //            break;
+                //    }
+                //});
+
+                db.SaveChanges();
+            }
+        }
+
+        [TestMethod()]
+        public void Upsert_Update_NestedOwnedTypePropertiesAreSet()
+        {
+            var project = new Project
+            {
+                Id = 1337,
+                Name = "Cool project",
+                Departments = new List<ProjectDepartment>
+                {
+                    new ProjectDepartment
+                    {
+                        Id = 1,
+                        Name = "Mech",
+                        Employees = new List<DepartmentEmployee>
+                        {
+                            new DepartmentEmployee
+                            {
+                                Id = 1,
+                                Name = "Kramer"
+                            },
+                            new DepartmentEmployee
+                            {
+                                Id = 2,
+                                Name = "Slaymer"
+                            }
+                        }
+                    },
+                    new ProjectDepartment
+                    {
+                        Id = 2,
+                        Name = "Dech",
+                        Employees = new List<DepartmentEmployee>
+                        {
+                            new DepartmentEmployee
+                            {
+                                Id = 3,
+                                Name = "Vramer"
+                            },
+                            new DepartmentEmployee
+                            {
+                                Id = 4,
+                                Name = "Claymer"
+                            }
+                        }
                     }
+                }
+            };
+
+            using (var db = TestDbContextFactory.Create())
+            {
+                db.Add(new Project
+                {
+                    Id = 1337,
+                    Name = "Cool project"
                 });
 
+                db.SaveChanges();
+            }
+
+            using (var db = TestDbContextFactory.Create())
+            {
+                db.Upsert(project);                
                 db.SaveChanges();
             }
         }
