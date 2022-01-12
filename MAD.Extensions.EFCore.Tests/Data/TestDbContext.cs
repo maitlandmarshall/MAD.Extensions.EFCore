@@ -28,7 +28,14 @@ namespace MAD.Extensions.EFCore.Tests.Data
                 cfg.OwnsOne(y => y.Region);
                 cfg.OwnsMany(y => y.Departments, cfg =>
                 {
+                    cfg.HasKey(y => y.Id);
                     cfg.Property(y => y.Id).ValueGeneratedNever();
+
+                    cfg.OwnsMany(y => y.Employees, cfg =>
+                    {
+                        cfg.HasKey(y => y.Id);
+                        cfg.Property(y => y.Id).ValueGeneratedNever();
+                    });
                 });
             });
         }

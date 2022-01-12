@@ -16,6 +16,7 @@ namespace MAD.Extensions.EFCore
             dbContext.ChangeTracker.TrackGraph(entity, g =>
             {
                 var entryEntity = g.Entry.Entity;
+                var sourceEntryEntity = g.SourceEntry?.Entity;
                 var entityType = g.Entry.OriginalValues.EntityType;
 
                 if (entityType is null)
@@ -32,7 +33,7 @@ namespace MAD.Extensions.EFCore
 
                     foreach (var pk in principalKeyProperties)
                     {
-                        var value = dbContext.Entry(entryEntity).Property(pk.Name).CurrentValue;
+                        var value = dbContext.Entry(sourceEntryEntity).Property(pk.Name).CurrentValue;
                         pkValues.Add(value);
                     }
                     
