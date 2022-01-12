@@ -58,7 +58,7 @@ namespace MAD.Extensions.EFCore.Tests
             using (var db = TestDbContextFactory.Create())
             {
                 db.Upsert(project);
-                //, entity =>
+                //db.Upsert(project, entity =>
                 //{
                 //    switch (entity)
                 //    {
@@ -128,7 +128,7 @@ namespace MAD.Extensions.EFCore.Tests
             using (var db = TestDbContextFactory.Create())
             {
                 db.Upsert(project);
-                //, entity =>
+                //db.Upsert(project, entity =>
                 //{
                 //    switch (entity)
                 //    {

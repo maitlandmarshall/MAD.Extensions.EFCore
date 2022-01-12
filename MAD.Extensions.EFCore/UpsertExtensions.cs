@@ -11,14 +11,17 @@ namespace MAD.Extensions.EFCore
 {
     public static class UpsertExtensions
     {
-        public static void Upsert(this DbContext dbContext, object entity)
+        public static void Upsert(this DbContext dbContext, object entity, Action<object> transformations = null)
         {
             dbContext.ChangeTracker.TrackGraph(entity, g =>
             {
+                var entryEntity = g.Entry.Entity;
                 var entityType = g.Entry.OriginalValues.EntityType;
 
                 if (entityType is null)
                     return;
+
+                transformations?.Invoke(entryEntity);
 
                 if (g.InboundNavigation is null == false && g.InboundNavigation.IsCollection())
                 {
@@ -29,7 +32,7 @@ namespace MAD.Extensions.EFCore
 
                     foreach (var pk in principalKeyProperties)
                     {
-                        var value = dbContext.Entry(entity).Property(pk.Name).CurrentValue;
+                        var value = dbContext.Entry(entryEntity).Property(pk.Name).CurrentValue;
                         pkValues.Add(value);
                     }
                     
@@ -38,7 +41,7 @@ namespace MAD.Extensions.EFCore
                         var dk = dependantKeyProperties[i];
                         var pkVal = pkValues[i];
 
-                        dbContext.Entry(g.Entry.Entity).Property(dk.Name).CurrentValue = pkVal;
+                        dbContext.Entry(entryEntity).Property(dk.Name).CurrentValue = pkVal;
                     }
                 }               
 
@@ -47,7 +50,7 @@ namespace MAD.Extensions.EFCore
                     keySelector: y => y.Name,
                     elementSelector: x =>
                     {
-                        object result = null;
+                        object result;
 
                         if (x.PropertyInfo is null)
                         {
@@ -55,7 +58,7 @@ namespace MAD.Extensions.EFCore
                         }
                         else
                         {
-                            result = x.PropertyInfo.GetValue(g.Entry.Entity);
+                            result = x.PropertyInfo.GetValue(entryEntity);
                         }
 
                         if (result is DateTime dte)
