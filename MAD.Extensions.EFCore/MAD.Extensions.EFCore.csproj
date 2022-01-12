@@ -10,9 +10,9 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<Major>1</Major>
+		<Major>3</Major>
 		<Minor>0</Minor>
-		<Build>1</Build>
+		<Build>0</Build>
 		<Revision>$([System.DateTime]::UtcNow.ToString("MddHHmmss"))</Revision>
 
 		<Version>$(Major).$(Minor).$(Build).$(Revision)</Version>
