@@ -1,4 +1,4 @@
-name: Nuget MAD.Extensions.EFCore
+name: Nuget MAD.Extensions.EFCore6
 
 # Controls when the workflow will run
 on:
@@ -6,7 +6,7 @@ on:
   push:
     branches: [ master ]
     paths:
-    - 'MAD.Extensions.EFCore/**'
+    - 'MAD.Extensions.EFCore6/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,12 +27,12 @@ jobs:
         with:          
           dotnet-version: '6.0.x' # SDK Version to use.          
       - name: Restore dependencies
-        run: dotnet restore MAD.Extensions.EFCore
+        run: dotnet restore MAD.Extensions.EFCore6
       - name: Build
-        run: dotnet build MAD.Extensions.EFCore --no-restore
+        run: dotnet build MAD.Extensions.EFCore6 --no-restore
       - name: Test
-        run: dotnet test MAD.Extensions.EFCore --no-build --verbosity normal
+        run: dotnet test MAD.Extensions.EFCore6 --no-build --verbosity normal
       - name: Pack
-        run: dotnet pack --configuration Release MAD.Extensions.EFCore
+        run: dotnet pack --configuration Release MAD.Extensions.EFCore6
       - name: Publish the package to nuget.org
         run: dotnet nuget push */bin/Release/*.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s https://api.nuget.org/v3/index.json
