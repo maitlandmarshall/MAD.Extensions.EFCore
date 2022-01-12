@@ -23,6 +23,8 @@ namespace MAD.Extensions.EFCore
                 if (g.InboundNavigation is null == false && g.InboundNavigation.IsCollection())
                 {
                     var principalKeyProperties = g.InboundNavigation.ForeignKey.PrincipalKey.Properties;
+                    var dependantKeyProperties = g.InboundNavigation.ForeignKey.Properties;
+
                     var pkValues = new List<object>();
 
                     foreach (var pk in principalKeyProperties)
@@ -30,9 +32,7 @@ namespace MAD.Extensions.EFCore
                         var value = dbContext.Entry(entity).Property(pk.Name).CurrentValue;
                         pkValues.Add(value);
                     }
-
-                    var dependantKeyProperties = g.InboundNavigation.ForeignKey.Properties;
-
+                    
                     for (int i = 0; i < pkValues.Count; i++)
                     {
                         var dk = dependantKeyProperties[i];
