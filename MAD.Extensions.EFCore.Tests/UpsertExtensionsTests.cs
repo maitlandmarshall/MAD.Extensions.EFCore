@@ -57,15 +57,16 @@ namespace MAD.Extensions.EFCore.Tests
 
             using (var db = TestDbContextFactory.Create())
             {
-                db.Upsert(project, entity =>
-                {
-                    switch (entity)
-                    {
-                        case ProjectDepartment pd:
-                            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
-                            break;
-                    }
-                });
+                db.Upsert(project);
+                //, entity =>
+                //{
+                //    switch (entity)
+                //    {
+                //        case ProjectDepartment pd:
+                //            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
+                //            break;
+                //    }
+                //});
 
                 db.SaveChanges();
             }
@@ -126,18 +127,19 @@ namespace MAD.Extensions.EFCore.Tests
 
             using (var db = TestDbContextFactory.Create())
             {
-                db.Upsert(project, entity =>
-                {
-                    switch (entity)
-                    {
-                        case ProjectDepartment pd:
-                            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
-                            break;
-                        case ProjectRegion region:
+                db.Upsert(project);
+                //, entity =>
+                //{
+                //    switch (entity)
+                //    {
+                //        case ProjectDepartment pd:
+                //            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
+                //            break;
+                //        case ProjectRegion region:
 
-                            break;
-                    }
-                });
+                //            break;
+                //    }
+                //});
 
                 db.SaveChanges();
             }
