@@ -15,38 +15,26 @@ namespace MAD.Extensions.EFCore
         {
             dbContext.ChangeTracker.TrackGraph(entity, g =>
             {
-                var entryEntity = g.Entry.Entity;
-                var sourceEntryEntity = g.SourceEntry?.Entity;
-                var entityType = g.Entry.OriginalValues.EntityType;
+                // The current entity
+                var dependentEntity = g.Entry.Entity;
+                var dependentEntityType = g.Entry.OriginalValues.EntityType;
 
-                if (entityType is null)
+                // The entities parent / principal
+                var principalEntity = g.SourceEntry?.Entity;
+
+                // If the dependentEntityType is null, it is not a part of the EFCore DbContext model
+                if (dependentEntityType is null)
                     return;
 
-                transformations?.Invoke(entryEntity);
+                transformations?.Invoke(dependentEntity);
 
-                if (g.InboundNavigation is null == false && g.InboundNavigation.IsCollection())
+                if (g.InboundNavigation is null == false && IsCollection(g.InboundNavigation as INavigation))
                 {
-                    var principalKeyProperties = g.InboundNavigation.ForeignKey.PrincipalKey.Properties;
-                    var dependantKeyProperties = g.InboundNavigation.ForeignKey.Properties;
+                    // Ensure the foreign keys are set so the sourceEntryEntity and entryEntity continue to be a part of the same object graph.
+                    dbContext.SetForeignKeys(g.InboundNavigation as INavigation, dependentEntity, principalEntity);
+                }
 
-                    var pkValues = new List<object>();
-
-                    foreach (var pk in principalKeyProperties)
-                    {
-                        var value = dbContext.Entry(sourceEntryEntity).Property(pk.Name).CurrentValue;
-                        pkValues.Add(value);
-                    }
-                    
-                    for (int i = 0; i < pkValues.Count; i++)
-                    {
-                        var dk = dependantKeyProperties[i];
-                        var pkVal = pkValues[i];
-
-                        dbContext.Entry(entryEntity).Property(dk.Name).CurrentValue = pkVal;
-                    }
-                }               
-
-                var primaryKey = entityType.FindPrimaryKey();
+                var primaryKey = dependentEntityType.FindPrimaryKey();
                 var keys = primaryKey.Properties.ToDictionary(
                     keySelector: y => y.Name,
                     elementSelector: x =>
@@ -59,7 +47,7 @@ namespace MAD.Extensions.EFCore
                         }
                         else
                         {
-                            result = x.PropertyInfo.GetValue(entryEntity);
+                            result = x.PropertyInfo.GetValue(dependentEntity);
                         }
 
                         if (result is DateTime dte)
@@ -71,14 +59,14 @@ namespace MAD.Extensions.EFCore
                         return result;
                     });
 
-                if (entityType.IsOwned())
+                if (dependentEntityType.IsOwned())
                 {
-                    var ownership = entityType.FindOwnership();
+                    var ownership = dependentEntityType.FindOwnership();
                     var navigation = ownership.GetNavigation(false);
 
-                    if (navigation.IsCollection())
+                    if (IsCollection(navigation))
                     {
-                        dbContext.AddOrUpdateEntity(g.Entry, entityType, keys);
+                        dbContext.AddOrUpdateEntity(g.Entry, dependentEntityType, keys);
                     }
                     else
                     {
@@ -87,9 +75,32 @@ namespace MAD.Extensions.EFCore
                 }
                 else
                 {
-                    dbContext.AddOrUpdateEntity(g.Entry, entityType, keys);
+                    dbContext.AddOrUpdateEntity(g.Entry, dependentEntityType, keys);
                 }
             });
+        }
+
+        private static void SetForeignKeys(this DbContext dbContext, INavigation navigation, object dependent, object principal)
+        {
+            var principalKeyProperties = navigation.ForeignKey.PrincipalKey.Properties;
+            var principalPkValues = new List<object>();
+            var dependantKeyProperties = navigation.ForeignKey.Properties;
+
+            // Get all the principal key values from the principal entity
+            foreach (var pk in principalKeyProperties)
+            {
+                var value = dbContext.Entry(principal).Property(pk.Name).CurrentValue;
+                principalPkValues.Add(value);
+            }
+
+            // Using the princpal key values, set the dependent's fk values to equal them
+            for (int i = 0; i < principalPkValues.Count; i++)
+            {
+                var dk = dependantKeyProperties[i];
+                var pkVal = principalPkValues[i];
+
+                dbContext.Entry(dependent).Property(dk.Name).CurrentValue = pkVal;
+            }
         }
 
         private static void AddOrUpdateEntity(this DbContext dbContext, EntityEntry entry, IEntityType entityType, IDictionary<string, object> keys)
@@ -122,5 +133,15 @@ namespace MAD.Extensions.EFCore
 
             return db;
         }
+
+        private static bool IsCollection(INavigation navigation)
+        {
+#if NET6_0_OR_GREATER
+            return navigation.IsCollection;
+#else
+            return navigation.IsCollection();
+#endif
+        }
+
     }
 }
