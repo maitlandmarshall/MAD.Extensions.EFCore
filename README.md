@@ -1,5 +1,3 @@
-![MAD.Extensions.EFCore]
-
 ## MAD.Extensions.EFCore: A library for .NET Core & .NET that provides extended functionality for Entity Framework Core
 
 MAD.Extensions.EFCore is inspired by borisdj's [EFCore.BulkExtensions](https://github.com/borisdj/EFCore.BulkExtensions) library, and currently provides an extension to "Upsert" (Insert or Update) an object using the Entity Framework Core DbContext:
