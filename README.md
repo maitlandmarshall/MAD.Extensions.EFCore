@@ -1,36 +1,30 @@
 ## MAD.Extensions.EFCore: A library for .NET Core & .NET that provides extended functionality for Entity Framework Core
 
-MAD.Extensions.EFCore is inspired by borisdj's [EFCore.BulkExtensions](https://github.com/borisdj/EFCore.BulkExtensions) library, and currently provides an extension to "Upsert" (Insert or Update) an object using the Entity Framework Core DbContext:
+[![NuGet](https://img.shields.io/nuget/v/MAD.Extensions.EFCore.svg)](https://www.nuget.org/packages/MAD.Extensions.EFCore/)
+[![NuGet](https://img.shields.io/nuget/dt/MAD.Extensions.EFCore)](https://www.nuget.org/packages/MAD.Extensions.EFCore/)
+
+MAD.Extensions.EFCore is inspired by borisdj's [EFCore.BulkExtensions](https://github.com/borisdj/EFCore.BulkExtensions) library, and currently provides an extension to "Upsert" (Insert or Update) an object with a single method call using Entity Framework Core:
 
 ```csharp
 dbContext.Upsert(entity);
+dbContext.SaveChanges();
 ```
 
 # Table of Contents
 
 * [Supported Platforms](#supported-platforms)
-* [Installation](#installation)
+* [Upserting Objects](#upserting-objects)    
+    * [Shadow Properties](#shadow-properties)    
 
 ### Supported Platforms
 
-MAD.Extensions.EFCore currently supports the following platforms and any .NET Standard 2.1 target:
+MAD.Extensions.EFCore currently supports the following platforms:
 
+* .NET Standard 2.1
 * .NET Core 3.1
 * .NET 5
 * .NET 6
 
-### Installation
+### Upserting Objects
 
-MAD.Extensions.EFCore can be installed using the following methods:
-
-Visual Studio Nuget Package Manager:
-
-`MAD.Extensions.EFCore`
-
-Visual Studio Package Manager Console:
-
-`PM> Install-Package MAD.Extensions.EFCore`
-
-.NET CLI:
-
-`> dotnet add package MAD.Extensions.EFCore`
+### Shadow Properties
