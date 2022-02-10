@@ -10,9 +10,16 @@
 		<RepositoryType>git</RepositoryType>
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageTags>EFCore, Upsert</PackageTags>
-		<Description>Allows you to either insert or update entities with one call using EFCore.</Description>
+		<PackageTags>EFCore;Upsert;Update;Insert;EntityFramework;Entity;Framework;EntityFrameworkCore</PackageTags>
+		<Description>Allows you to either insert or update (upsert) entities with one call using EFCore.</Description>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.7" />
@@ -23,10 +30,11 @@
 		<Major>3</Major>
 		<Minor>0</Minor>
 		<Build>2</Build>
-		<Revision>1</Revision>
+		<Revision>2</Revision>
 
 		<Version>$(Major).$(Minor).$(Build).$(Revision)</Version>
 		<AssemblyVersion>$(Major).$(Minor).$(Build)</AssemblyVersion>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 </Project>

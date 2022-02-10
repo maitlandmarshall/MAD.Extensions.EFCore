@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-
 		<Authors>Maitland Marshall</Authors>
 		<Company>MAIT DEV</Company>
 		<PackageId>MAD.Extensions.EFCore</PackageId>
@@ -12,12 +11,19 @@
 		<RepositoryType>git</RepositoryType>
 		<IsPackable>true</IsPackable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageTags>EFCore, Upsert</PackageTags>
-		<Description>Allows you to either insert or update entities with one call using EFCore.</Description>
+		<PackageTags>EFCore;Upsert;Update;Insert;EntityFramework;Entity;Framework;EntityFrameworkCore</PackageTags>
+		<Description>Allows you to either insert or update (upsert) entities with one call using EFCore.</Description>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Include="..\MAD.Extensions.EFCore\UpsertExtensions.cs" Link="UpsertExtensions.cs" />
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="..\MAD.Extensions.EFCore\UpsertExtensions.cs" Link="UpsertExtensions.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -29,7 +35,7 @@
 		<Major>6</Major>
 		<Minor>0</Minor>
 		<Build>2</Build>
-		<Revision>0</Revision>
+		<Revision>2</Revision>
 
 		<Version>$(Major).$(Minor).$(Build).$(Revision)</Version>
 		<AssemblyVersion>$(Major).$(Minor).$(Build)</AssemblyVersion>
