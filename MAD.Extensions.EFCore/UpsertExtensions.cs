@@ -63,18 +63,22 @@ namespace MAD.Extensions.EFCore
 
         private static bool EntityPreviouslyTracked(this DbContext dbContext, EntityEntry entry, IEntityType entityType, IDictionary<string, object> keys)
         {
+            // If entry has no key yet it hasn't been previously added
             if (entry.IsKeySet == false)
                 return false;
 
+            // Get a list of existing entries for the entity type
             var existingEntries = dbContext.ChangeTracker.Entries().Where(y => y.OriginalValues.EntityType == entityType);
 
             foreach (var existingEntry in existingEntries)
             {
+                // Compare the primary key values of the existing entity with the new entity
                 var primaryKey = entityType.FindPrimaryKey();
                 var existingKeys = GetPrimaryKeyValues(primaryKey, existingEntry, existingEntry.Entity);
 
                 foreach (var keyValue in keys)
-                {
+                {       
+                    // If a matching key value is found then return true
                     if (existingKeys.TryGetValue(keyValue.Key, out object existingValue) && keyValue.Value.Equals(existingValue))
                         return true;
                 }
