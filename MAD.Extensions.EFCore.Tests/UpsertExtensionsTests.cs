@@ -84,15 +84,6 @@ namespace MAD.Extensions.EFCore.Tests
             using (var db = TestDbContextFactory.Create())
             {
                 db.Upsert(project);
-                //db.Upsert(project, entity =>
-                //{
-                //    switch (entity)
-                //    {
-                //        case ProjectDepartment pd:
-                //            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
-                //            break;
-                //    }
-                //});
 
                 db.SaveChanges();
             }
@@ -154,18 +145,6 @@ namespace MAD.Extensions.EFCore.Tests
             using (var db = TestDbContextFactory.Create())
             {
                 db.Upsert(project);
-                //db.Upsert(project, entity =>
-                //{
-                //    switch (entity)
-                //    {
-                //        case ProjectDepartment pd:
-                //            db.Entry(entity).Property("ProjectId").CurrentValue = project.Id;
-                //            break;
-                //        case ProjectRegion region:
-
-                //            break;
-                //    }
-                //});
 
                 db.SaveChanges();
             }
@@ -232,7 +211,83 @@ namespace MAD.Extensions.EFCore.Tests
 
             using (var db = TestDbContextFactory.Create())
             {
-                db.Upsert(project);                
+                db.Upsert(project);
+                db.SaveChanges();
+            }
+        }
+
+        [TestMethod()]
+        public void Upsert_Update_EntityPreviouslyTracked()
+        {
+            var project1 = new Project
+            {
+                Id = 1337,
+                Name = "Cool Project 1",
+                Office = new ProjectOffice
+                {
+                    Id = 1899,
+                    Name = "Main office",
+                    OfficeAddress = new OfficeAddress
+                    {
+                        Address = "123 Fake Street",
+                        City = "Fake City"
+                    }
+                },
+                Region = new ProjectRegion
+                {
+                    Name = "Australia",
+                    Id = 998
+                }                
+            };
+
+            var project2 = new Project
+            {
+                Id = 1337,
+                Name = "Cool Project 2",
+                Office = new ProjectOffice
+                {
+                    Id = 1900,
+                    Name = "Main office",
+                    OfficeAddress = new OfficeAddress
+                    {
+                        Address = "123 Fake Street",
+                        City = "Fake City"
+                    }
+                },
+                Region = new ProjectRegion
+                {
+                    Name = "Australia",
+                    Id = 999
+                }                                
+            };
+
+            using (var db = TestDbContextFactory.Create())
+            {
+                db.AddRange(new List<Project>() 
+                {
+                    new Project
+                    {
+                        Id = 1337,
+                        Name = "Cool Project 1"
+                    }
+                });
+
+                db.SaveChanges();
+            }
+
+            using (var db = TestDbContextFactory.Create())
+            {
+                var lstProjects = new List<Project>()
+                {
+                    project1,
+                    project2
+                };
+
+                foreach (var project in lstProjects)
+                {
+                    db.Upsert(project);
+                }
+
                 db.SaveChanges();
             }
         }
