@@ -11,6 +11,14 @@ namespace MAD.Extensions.EFCore
 {
     public static class UpsertExtensions
     {
+        public static void Upsert(this DbContext dbContext, IEnumerable<object> entities, Action<object> transformations = null)
+        {
+            foreach (var entity in entities)
+            {
+                Upsert(dbContext, entity, transformations);
+            }            
+        }
+
         public static void Upsert(this DbContext dbContext, object entity, Action<object> transformations = null)
         {
             dbContext.ChangeTracker.TrackGraph(entity, g =>
@@ -77,12 +85,12 @@ namespace MAD.Extensions.EFCore
                 var existingKeys = GetPrimaryKeyValues(primaryKey, existingEntry, existingEntry.Entity);
 
                 foreach (var keyValue in keys)
-                {       
+                {
                     // If a matching key value is found then return true
                     if (existingKeys.TryGetValue(keyValue.Key, out object existingValue) && keyValue.Value.Equals(existingValue))
                         return true;
                 }
-            }           
+            }
 
             return false;
         }

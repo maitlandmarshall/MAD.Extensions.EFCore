@@ -237,7 +237,7 @@ namespace MAD.Extensions.EFCore.Tests
                 {
                     Name = "Australia",
                     Id = 998
-                }                
+                }
             };
 
             var project2 = new Project
@@ -258,12 +258,12 @@ namespace MAD.Extensions.EFCore.Tests
                 {
                     Name = "Australia",
                     Id = 999
-                }                                
+                }
             };
 
             using (var db = TestDbContextFactory.Create())
             {
-                db.AddRange(new List<Project>() 
+                db.AddRange(new List<Project>()
                 {
                     new Project
                     {
@@ -283,10 +283,7 @@ namespace MAD.Extensions.EFCore.Tests
                     project2
                 };
 
-                foreach (var project in lstProjects)
-                {
-                    db.Upsert(project);
-                }
+                db.Upsert(lstProjects);
 
                 db.SaveChanges();
             }
