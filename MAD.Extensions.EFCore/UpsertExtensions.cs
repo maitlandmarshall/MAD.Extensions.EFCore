@@ -100,6 +100,14 @@ namespace MAD.Extensions.EFCore
                             result = x.PropertyInfo.GetValue(dependentEntity);
                         }
 
+                        var typeMapping = x.GetTypeMapping();
+                        var converter = typeMapping?.Converter;
+
+                        if (converter != null)
+                        {
+                            result = converter.ConvertToProvider(result);
+                        }
+
                         if (result is DateTime dte)
                         {
                             // Dates are serialized by default as yyyy-MM-dd HH:mm:ss. Add more precision.
