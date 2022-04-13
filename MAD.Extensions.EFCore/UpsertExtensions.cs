@@ -16,7 +16,7 @@ namespace MAD.Extensions.EFCore
             foreach (var entity in entities)
             {
                 Upsert(dbContext, entity, transformations);
-            }            
+            }
         }
 
         public static void Upsert(this DbContext dbContext, object entity, Action<object> transformations = null)
@@ -45,7 +45,7 @@ namespace MAD.Extensions.EFCore
                 var primaryKey = dependentEntityType.FindPrimaryKey();
                 var keys = GetPrimaryKeyValues(primaryKey, g.Entry, dependentEntity);
 
-                if (dbContext.EntityPreviouslyTracked(g.Entry, dependentEntityType, keys))
+                if (g.Entry.IsKeySet && dbContext.EntityPreviouslyTracked(dependentEntityType, keys))
                     return;
 
                 if (dependentEntityType.IsOwned())
@@ -69,14 +69,10 @@ namespace MAD.Extensions.EFCore
             });
         }
 
-        private static bool EntityPreviouslyTracked(this DbContext dbContext, EntityEntry entry, IEntityType entityType, IDictionary<string, object> keys)
+        private static bool EntityPreviouslyTracked(this DbContext dbContext, IEntityType entityType, IDictionary<string, object> keys)
         {
-            // If entry has no key yet it hasn't been previously added
-            if (entry.IsKeySet == false)
-                return false;
-
             // Get a list of existing entries for the entity type
-            var existingEntries = dbContext.ChangeTracker.Entries().Where(y => y.OriginalValues.EntityType == entityType);
+            var existingEntries = dbContext.ChangeTracker.Entries().Where(y => y.OriginalValues.EntityType == entityType && y.State != EntityState.Detached);
 
             foreach (var existingEntry in existingEntries)
             {
@@ -84,12 +80,9 @@ namespace MAD.Extensions.EFCore
                 var primaryKey = entityType.FindPrimaryKey();
                 var existingKeys = GetPrimaryKeyValues(primaryKey, existingEntry, existingEntry.Entity);
 
-                foreach (var keyValue in keys)
-                {
-                    // If a matching key value is found then return true
-                    if (existingKeys.TryGetValue(keyValue.Key, out object existingValue) && keyValue.Value.Equals(existingValue))
-                        return true;
-                }
+                // If a matching key value is found then return true
+                if (existingKeys.SequenceEqual(keys))
+                    return true;
             }
 
             return false;
