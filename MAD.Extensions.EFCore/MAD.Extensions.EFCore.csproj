@@ -28,9 +28,9 @@
 
 	<PropertyGroup>
 		<Major>3</Major>
-		<Minor>0</Minor>
-		<Build>2</Build>
-		<Revision>2</Revision>
+		<Minor>1</Minor>
+		<Build>0</Build>
+		<Revision>0</Revision>
 
 		<Version>$(Major).$(Minor).$(Build).$(Revision)</Version>
 		<AssemblyVersion>$(Major).$(Minor).$(Build)</AssemblyVersion>

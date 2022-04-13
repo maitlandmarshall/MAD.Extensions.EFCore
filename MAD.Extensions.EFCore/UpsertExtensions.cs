@@ -11,6 +11,14 @@ namespace MAD.Extensions.EFCore
 {
     public static class UpsertExtensions
     {
+        public static void Upsert(this DbContext dbContext, IEnumerable<object> entities, Action<object> transformations = null)
+        {
+            foreach (var entity in entities)
+            {
+                Upsert(dbContext, entity, transformations);
+            }
+        }
+
         public static void Upsert(this DbContext dbContext, object entity, Action<object> transformations = null)
         {
             dbContext.ChangeTracker.TrackGraph(entity, g =>
@@ -35,37 +43,10 @@ namespace MAD.Extensions.EFCore
                 }
 
                 var primaryKey = dependentEntityType.FindPrimaryKey();
-                var keys = primaryKey.Properties.ToDictionary(
-                    keySelector: y => y.Name,
-                    elementSelector: x =>
-                    {
-                        object result;
+                var keys = GetPrimaryKeyValues(primaryKey, g.Entry, dependentEntity);
 
-                        if (x.PropertyInfo is null)
-                        {
-                            result = g.Entry.Property(x.Name).CurrentValue;
-                        }
-                        else
-                        {
-                            result = x.PropertyInfo.GetValue(dependentEntity);
-                        }
-
-                        var typeMapping = x.GetTypeMapping();
-                        var converter = typeMapping?.Converter;
-
-                        if (converter != null) 
-                        {
-                            result = converter.ConvertToProvider(result);
-                        }
-
-                        if (result is DateTime dte)
-                        {
-                            // Dates are serialized by default as yyyy-MM-dd HH:mm:ss. Add more precision.
-                            result = dte.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                        }
-
-                        return result;
-                    });
+                if (g.Entry.IsKeySet && dbContext.EntityPreviouslyTracked(dependentEntityType, keys))
+                    return;
 
                 if (dependentEntityType.IsOwned())
                 {
@@ -86,6 +67,60 @@ namespace MAD.Extensions.EFCore
                     dbContext.AddOrUpdateEntity(g.Entry, dependentEntityType, keys);
                 }
             });
+        }
+
+        private static bool EntityPreviouslyTracked(this DbContext dbContext, IEntityType entityType, IDictionary<string, object> keys)
+        {
+            // Get a list of existing entries for the entity type
+            var existingEntries = dbContext.ChangeTracker.Entries().Where(y => y.OriginalValues.EntityType == entityType && y.State != EntityState.Detached);
+
+            foreach (var existingEntry in existingEntries)
+            {
+                // Compare the primary key values of the existing entity with the new entity
+                var primaryKey = entityType.FindPrimaryKey();
+                var existingKeys = GetPrimaryKeyValues(primaryKey, existingEntry, existingEntry.Entity);
+
+                // If a matching key value is found then return true
+                if (existingKeys.SequenceEqual(keys))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static IDictionary<string, object> GetPrimaryKeyValues(IKey primaryKey, EntityEntry entry, object dependentEntity)
+        {
+            return primaryKey.Properties.ToDictionary(
+                    keySelector: y => y.Name,
+                    elementSelector: x =>
+                    {
+                        object result;
+
+                        if (x.PropertyInfo is null)
+                        {
+                            result = entry.Property(x.Name).CurrentValue;
+                        }
+                        else
+                        {
+                            result = x.PropertyInfo.GetValue(dependentEntity);
+                        }
+
+                        var typeMapping = x.GetTypeMapping();
+                        var converter = typeMapping?.Converter;
+
+                        if (converter != null)
+                        {
+                            result = converter.ConvertToProvider(result);
+                        }
+
+                        if (result is DateTime dte)
+                        {
+                            // Dates are serialized by default as yyyy-MM-dd HH:mm:ss. Add more precision.
+                            result = dte.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                        }
+
+                        return result;
+                    });
         }
 
         private static void SetForeignKeys(this DbContext dbContext, INavigation navigation, object dependent, object principal)
