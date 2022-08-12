@@ -115,9 +115,10 @@ namespace MAD.Extensions.EFCore
         {
             var db = dbContext.GetQueryFactory();
             var tableName = entityType.GetTableName();
+            var schema = entityType.GetSchema() ?? "dbo";
 
             var query = db
-                .Query(tableName)
+                .Query($"{schema}.{tableName}")
                 .Where(keys);
 
             var existingEntityCount =

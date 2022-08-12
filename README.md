@@ -1,7 +1,7 @@
 ## MAD.Extensions.EFCore: A library for .NET Core & .NET that provides extended functionality for Entity Framework Core
 
 [![NuGet](https://buildstats.info/nuget/MAD.Extensions.EFCore?packageVersion=3.0.1)](https://www.nuget.org/packages/MAD.Extensions.EFCore/3.0.1/)
-<br />[![NuGet](https://buildstats.info/nuget/MAD.Extensions.EFCore)](https://www.nuget.org/packages/MAD.Extensions.EFCore/)
+[![NuGet](https://buildstats.info/nuget/MAD.Extensions.EFCore)](https://www.nuget.org/packages/MAD.Extensions.EFCore/)
 
 MAD.Extensions.EFCore is inspired by borisdj's [EFCore.BulkExtensions](https://github.com/borisdj/EFCore.BulkExtensions) library, and currently provides an extension to "Upsert" (Insert or Update) an object with a single method call using Entity Framework Core.
 
